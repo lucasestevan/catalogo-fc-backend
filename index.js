@@ -21,7 +21,19 @@ const pool = new Pool({
 });
 
 // --- MIDDLEWARES ---
-app.use(cors());
+// backend/index.js
+
+// Configuração do CORS
+const corsOptions = {
+  origin: [
+    'http://localhost:3000', // Permite seu front-end local
+    // Adicione aqui a URL do seu Vercel quando fizer o deploy
+    // Ex: 'https://catalogo-fc.vercel.app' 
+  ],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Middleware para verificar o token de admin
@@ -171,4 +183,44 @@ app.get('/api/times', async (req, res) => {
 // --- INICIA O SERVIDOR ---
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
+});
+
+// backend/index.js (adicione este bloco)
+const { google } = require('googleapis');
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  'http://localhost:3001/google/auth/callback' // URI de redirecionamento
+);
+
+// backend/index.js
+app.get('/api/visualizar/:timeId', async (req, res) => {
+  try {
+    const { timeId } = req.params;
+
+    // 1. Encontra o ID do álbum no nosso banco de dados
+    const timeResult = await pool.query('SELECT link_fotos FROM times WHERE id = $1', [timeId]);
+    if (timeResult.rows.length === 0) {
+      return res.status(404).send('Time não encontrado.');
+    }
+    const albumId = timeResult.rows[0].link_fotos; // Agora `link_fotos` contém o ID do álbum
+
+    // 2. Autentica com a API do Google usando o refresh token
+    oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+    const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
+
+    // 3. Busca todas as imagens do álbum
+    const response = await photos.mediaItems.search({
+      albumId: albumId,
+      pageSize: 100 // Limite de 100 fotos por álbum
+    });
+
+    const imageUrls = response.data.mediaItems.map(item => item.baseUrl);
+    res.json(imageUrls);
+
+  } catch (error) {
+    console.error("Erro ao buscar imagens do Google Photos:", error);
+    res.status(500).send("Erro ao buscar imagens.");
+  }
 });
