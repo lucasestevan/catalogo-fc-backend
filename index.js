@@ -195,6 +195,8 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 // backend/index.js
+// backend/index.js
+
 app.get('/api/visualizar/:timeId', async (req, res) => {
   try {
     const { timeId } = req.params;
@@ -204,23 +206,38 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
     if (timeResult.rows.length === 0) {
       return res.status(404).send('Time não encontrado.');
     }
-    const albumId = timeResult.rows[0].link_fotos; // Agora `link_fotos` contém o ID do álbum
+    const albumId = timeResult.rows[0].link_fotos;
 
-    // 2. Autentica com a API do Google usando o refresh token
+    // --- INÍCIO DA CORREÇÃO ---
+
+    // 2. Define as credenciais no nosso cliente OAuth2
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
-    const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
 
-    // 3. Busca todas as imagens do álbum
+    // 3. Define este cliente como o padrão de autenticação para as próximas chamadas da API do Google
+    google.options({ auth: oauth2Client });
+
+    // 4. Agora sim, cria o serviço do Photos Library
+    const photos = google.photoslibrary({ version: 'v1' });
+
+    // 5. Busca todas as imagens do álbum
     const response = await photos.mediaItems.search({
       albumId: albumId,
-      pageSize: 100 // Limite de 100 fotos por álbum
+      pageSize: 100
     });
+
+    // --- FIM DA CORREÇÃO ---
+
+    // Verifica se mediaItems existe antes de mapear
+    if (!response.data.mediaItems) {
+      return res.json([]); // Retorna uma lista vazia se o álbum não tiver fotos
+    }
 
     const imageUrls = response.data.mediaItems.map(item => item.baseUrl);
     res.json(imageUrls);
 
   } catch (error) {
-    console.error("Erro ao buscar imagens do Google Photos:", error);
+    // Agora vamos logar o erro da API do Google de forma mais detalhada
+    console.error("Erro ao buscar imagens do Google Photos:", error.response ? error.response.data : error.message);
     res.status(500).send("Erro ao buscar imagens.");
   }
 });
