@@ -225,7 +225,7 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
       pageSize: 100
     });
 
-    // --- FIM DA CORREÇÃO ---
+    // --- FIM DA CORREÇÃO -
 
     // Verifica se mediaItems existe antes de mapear
     if (!response.data.mediaItems) {
