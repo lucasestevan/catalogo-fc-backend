@@ -140,7 +140,8 @@ app.get('/api/times', async (req, res) => {
 app.get('/api/version', (req, res) => {
   try {
     const googleApiVersion = require('googleapis/package.json').version;
-    res.send(`Versão do googleapis no servidor: ${googleApiVersion}`);
+    const resolvedPath = require.resolve('googleapis');
+    res.send(`Versão: ${googleApiVersion}, Caminho: ${resolvedPath}`);
   } catch (e) {
     res.status(500).send(`Não foi possível ler a versão do googleapis: ${e.message}`);
   }
@@ -158,6 +159,13 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
 
     // Define as credenciais no cliente OAuth2
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+
+    // --- DIAGNÓSTICO AVANÇADO ---
+    const photosLibraryType = typeof google.photoslibrary;
+    const resolvedPath = require.resolve('googleapis');
+    console.log(`DEBUG: Caminho do googleapis: ${resolvedPath}`);
+    console.log(`DEBUG: typeof google.photoslibrary: ${photosLibraryType}`);
+    // --- FIM DIAGNÓSTICO ---
 
     // Passa o cliente autenticado diretamente ao criar o serviço
     const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
