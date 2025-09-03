@@ -160,9 +160,16 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
     // Define as credenciais no cliente OAuth2
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
 
-    // Define a autenticação globalmente e obtém o serviço
-    google.options({ auth: oauth2Client });
-    const photos = google.photoslibrary('v1');
+    // --- DIAGNÓSTICO FINAL ---
+    const googleapis = require('googleapis');
+    console.log('DEBUG: Keys on require("googleapis"):', Object.keys(googleapis));
+    if (googleapis.google) {
+      console.log('DEBUG: Keys on googleapis.google:', Object.keys(googleapis.google));
+    }
+    // --- FIM DIAGNÓSTICO ---
+
+    // Tenta usar o cliente
+    const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
 
     const response = await photos.mediaItems.search({
       albumId: albumId,
