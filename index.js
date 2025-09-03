@@ -149,7 +149,11 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
     // Define as credenciais no cliente OAuth2
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
 
-    // Usa o nome de serviço 'photos' que foi descoberto nos logs
+    // --- DIAGNÓSTICO FINAL ---
+    console.log(`DEBUG: typeof google.photos is: ${typeof google.photos}`);
+    console.log(`DEBUG: typeof google.drive is: ${typeof google.drive}`); // Comparação
+    // --- FIM DIAGNÓSTICO ---
+
     const photos = google.photos({ version: 'v1', auth: oauth2Client });
 
     const response = await photos.mediaItems.search({
