@@ -136,6 +136,15 @@ app.get('/api/times', async (req, res) => {
     }
 });
 
+// Rota de diagnóstico de versão
+app.get('/api/version', (req, res) => {
+  try {
+    const googleApiVersion = require('googleapis/package.json').version;
+    res.send(`Versão do googleapis no servidor: ${googleApiVersion}`);
+  } catch (e) {
+    res.status(500).send(`Não foi possível ler a versão do googleapis: ${e.message}`);
+  }
+});
 
 // Rota de visualização
 app.get('/api/visualizar/:timeId', async (req, res) => {
@@ -185,4 +194,3 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
-
