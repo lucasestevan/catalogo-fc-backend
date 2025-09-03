@@ -136,7 +136,7 @@ app.get('/api/times', async (req, res) => {
     }
 });
 
-// Rota de diagnóstico de versão
+// Rota de diagnóstico de versão (será removida após o fix)
 app.get('/api/version', (req, res) => {
   try {
     const googleApiVersion = require('googleapis/package.json').version;
@@ -160,15 +160,9 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
     // Define as credenciais no cliente OAuth2
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
 
-    // --- DIAGNÓSTICO AVANÇADO ---
-    const photosLibraryType = typeof google.photoslibrary;
-    const resolvedPath = require.resolve('googleapis');
-    console.log(`DEBUG: Caminho do googleapis: ${resolvedPath}`);
-    console.log(`DEBUG: typeof google.photoslibrary: ${photosLibraryType}`);
-    // --- FIM DIAGNÓSTICO ---
-
-    // Passa o cliente autenticado diretamente ao criar o serviço
-    const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
+    // Define a autenticação globalmente e obtém o serviço
+    google.options({ auth: oauth2Client });
+    const photos = google.photoslibrary('v1');
 
     const response = await photos.mediaItems.search({
       albumId: albumId,
@@ -183,17 +177,8 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
     res.json(imageUrls);
 
   } catch (error) {
-    // Log detalhado do erro no console do servidor
-    console.error("Erro detalhado ao buscar imagens do Google Photos:", error);
-
-    // Verifica se o erro é o TypeError que suspeitamos
-    if (error instanceof TypeError && error.message.includes("is not a function")) {
-      console.error("Detectado possível problema de versão da biblioteca googleapis.");
-      return res.status(500).send("Erro de servidor: Incompatibilidade na versão da API do Google. A forma de chamar 'photoslibrary' pode estar desatualizada. Verifique as dependências do backend.");
-    }
-
-    // Resposta de erro genérica para outros tipos de problemas
-    res.status(500).send("Erro ao buscar imagens do Google Photos.");
+    console.error("Erro ao buscar imagens do Google Photos:", error.response ? error.response.data : error.message);
+    res.status(500).send("Erro ao buscar imagens.");
   }
 });
 
