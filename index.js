@@ -149,7 +149,7 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
 
     // Define as credenciais no cliente OAuth2
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
-    
+
     // Passa o cliente autenticado diretamente ao criar o serviço
     const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
 
