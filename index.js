@@ -166,8 +166,17 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
     res.json(imageUrls);
 
   } catch (error) {
-    console.error("Erro ao buscar imagens do Google Photos:", error.response ? error.response.data : error.message);
-    res.status(500).send("Erro ao buscar imagens.");
+    // Log detalhado do erro no console do servidor
+    console.error("Erro detalhado ao buscar imagens do Google Photos:", error);
+
+    // Verifica se o erro é o TypeError que suspeitamos
+    if (error instanceof TypeError && error.message.includes("is not a function")) {
+      console.error("Detectado possível problema de versão da biblioteca googleapis.");
+      return res.status(500).send("Erro de servidor: Incompatibilidade na versão da API do Google. A forma de chamar 'photoslibrary' pode estar desatualizada. Verifique as dependências do backend.");
+    }
+
+    // Resposta de erro genérica para outros tipos de problemas
+    res.status(500).send("Erro ao buscar imagens do Google Photos.");
   }
 });
 
