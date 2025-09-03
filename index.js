@@ -149,7 +149,12 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
     // Define as credenciais no cliente OAuth2
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
     
-    // [CORREÇÃO] Passa o cliente autenticado diretamente ao criar o serviço
+    // [NOVO] Adiciona logs de depuração para ver o conteúdo dos objetos
+    console.log('--- INICIANDO DEPURAÇÃO DA API DO GOOGLE ---');
+    console.log('Conteúdo do objeto "google":', Object.keys(google));
+    console.log('A função "photoslibrary" existe? :', typeof google.photoslibrary);
+    
+    // Passa o cliente autenticado diretamente ao criar o serviço
     const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
 
     const response = await photos.mediaItems.search({
