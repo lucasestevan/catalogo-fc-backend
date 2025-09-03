@@ -136,17 +136,6 @@ app.get('/api/times', async (req, res) => {
     }
 });
 
-// Rota de diagnóstico de versão (será removida após o fix)
-app.get('/api/version', (req, res) => {
-  try {
-    const googleApiVersion = require('googleapis/package.json').version;
-    const resolvedPath = require.resolve('googleapis');
-    res.send(`Versão: ${googleApiVersion}, Caminho: ${resolvedPath}`);
-  } catch (e) {
-    res.status(500).send(`Não foi possível ler a versão do googleapis: ${e.message}`);
-  }
-});
-
 // Rota de visualização
 app.get('/api/visualizar/:timeId', async (req, res) => {
   try {
@@ -160,16 +149,8 @@ app.get('/api/visualizar/:timeId', async (req, res) => {
     // Define as credenciais no cliente OAuth2
     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
 
-    // --- DIAGNÓSTICO FINAL ---
-    const googleapis = require('googleapis');
-    console.log('DEBUG: Keys on require("googleapis"):', Object.keys(googleapis));
-    if (googleapis.google) {
-      console.log('DEBUG: Keys on googleapis.google:', Object.keys(googleapis.google));
-    }
-    // --- FIM DIAGNÓSTICO ---
-
-    // Tenta usar o cliente
-    const photos = google.photoslibrary({ version: 'v1', auth: oauth2Client });
+    // Usa o nome de serviço 'photos' que foi descoberto nos logs
+    const photos = google.photos({ version: 'v1', auth: oauth2Client });
 
     const response = await photos.mediaItems.search({
       albumId: albumId,
