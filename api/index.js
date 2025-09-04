@@ -58,7 +58,7 @@ const verifyAdminToken = (req, res, next) => {
 // --- 4. ROTAS DA API ---
 
 // Rota de Login do Vendedor
-app.post('/api/login/vendedor', async (req, res) => {
+app.post('/login/vendedor', async (req, res) => {
     // ... (o seu código desta rota permanece igual)
     const { email, senha } = req.body;
     if (!email || !senha) return res.status(400).json('Email e senha são obrigatórios.');
@@ -81,7 +81,7 @@ app.post('/api/login/vendedor', async (req, res) => {
 });
 
 // Rota de Login do Admin
-app.post('/api/admin/login', async (req, res) => {
+app.post('/admin/login', async (req, res) => {
     // ... (o seu código desta rota permanece igual, com os logs de depuração)
     try {
         const { email, senha } = req.body;
@@ -98,7 +98,7 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Rotas de gerenciamento do Admin (Vendedores e Times)
-app.post('/api/admin/vendedores', verifyAdminToken, async (req, res) => {
+app.post('/admin/vendedores', verifyAdminToken, async (req, res) => {
     // ... (o seu código desta rota permanece igual)
     const { nome, email, senha } = req.body;
     const salt = await bcrypt.genSalt(10);
@@ -113,7 +113,7 @@ app.post('/api/admin/vendedores', verifyAdminToken, async (req, res) => {
     }
 });
 
-app.post('/api/admin/times', verifyAdminToken, async (req, res) => {
+app.post('/admin/times', verifyAdminToken, async (req, res) => {
     // ... (o seu código desta rota permanece igual)
     const { nome_time, link_fotos, url_escudo } = req.body;
     try {
@@ -125,7 +125,7 @@ app.post('/api/admin/times', verifyAdminToken, async (req, res) => {
 });
 
 // Rota pública do Catálogo (para listar os times)
-app.get('/api/times', async (req, res) => {
+app.get('/times', async (req, res) => {
     // ... (o seu código desta rota permanece igual)
     try {
         const { rows } = await pool.query('SELECT id, nome_time, link_fotos, url_escudo FROM times ORDER BY nome_time ASC');
@@ -136,7 +136,7 @@ app.get('/api/times', async (req, res) => {
 });
 
 // Rota de visualização
-app.get('/api/visualizar/:timeId', async (req, res) => {
+app.get('/visualizar/:timeId', async (req, res) => {
   try {
     const { timeId } = req.params;
     const timeResult = await pool.query('SELECT link_fotos FROM times WHERE id = $1', [timeId]);
