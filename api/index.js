@@ -32,12 +32,7 @@ const oauth2Client = new google.auth.OAuth2(
 
 // --- 3. MIDDLEWARES ---
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'https://catalogo-fc-frontend.vercel.app',
-    'https://catalogo-fc-frontend-git-main-lucasestevans-projects.vercel.app', // Adicionado para deploy de preview
-    // Adicione outras origens se necessário
-  ],
+  origin: '*',
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
