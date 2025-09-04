@@ -34,7 +34,8 @@ const oauth2Client = new google.auth.OAuth2(
 const corsOptions = {
   origin: [
     'http://localhost:3000',
-    'https://catalogo-fc-frontend.vercel.app', // URL do frontend no Vercel
+    'https://catalogo-fc-frontend.vercel.app',
+    'https://catalogo-fc-frontend-git-main-lucasestevans-projects.vercel.app', // Adicionado para deploy de preview
     // Adicione outras origens se necessário
   ],
   optionsSuccessStatus: 200
